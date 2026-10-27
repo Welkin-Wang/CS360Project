@@ -4,6 +4,9 @@
   "minimum_chrome_version": "26.0.0.0",
   "version": "0.0.1",
   "homepage_url": "https://sarahmorrisonsmith.com/",
+  "action": {
+    "default_popup": "html/reader.html"
+  },
   "icons": {
   },
   "content_scripts": [
