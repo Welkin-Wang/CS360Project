@@ -2,18 +2,151 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ADHD Reader</title>
+    <link rel="stylesheet" href="../css/reader.css">
+    <script src="../scripts/reader.js" defer></script>
 </head>
 <body>
-    <header>
-        <h1>ADHD Reader</h1>
-        <label for="homepage">Insert Website:</label>
-        <input type="url" id="websiteInput" placeholder="https://example.com">
-        <button id="extractBtn">Extract From Link</button>
+    <div class="reader-layout">
+        <aside class="control-panel" aria-label="Reader Controls">
+            <header class="reader-header">
+                <h1>AD/HD Focuser</h1>
+            </header>
 
-        <main>
-            <p id="displayText"></p>
+            <section class="control-section" aria-labelledby="document-source-heading">
+                <h2 id="document-source-heading">Open File</h2>
+
+                <!-- handle link -->
+                <label for="websiteInput">Website address</label>
+                <div class="url-controls">
+                    <input type="url"
+                           id="websiteInput"
+                           placeholder="https://example.com"
+                           autocomplete="url" />
+                    <button type="button" id="extractBtn">
+                        Open Link
+                    </button>
+                </div>
+                <!-- handle pdf -->
+                <label for="pdfInput">Upload a PDF</label>
+                <input type="file"
+                       id="pdfInput"
+                       accept="application/pdf,.pdf" />
+            </section>
+
+            <!-- the style section -->
+            <section class="control-section" aria-labelledby="style-heading">
+                <h2 id="style-heading">Style</h2>
+                <label for="textSize">
+                    Text Size
+                    <output id="textSizeValue" for="textSize">18px</output>
+                </label>
+
+                <input type="range"
+                       id="textSize"
+                       min="14"
+                       max="32"
+                       step="0.5"
+                       value="18" />
+
+                <label for="lineSpacing">
+                    Line Spacing
+                    <output id="lineSpacingValue" for="lineSpacing">
+                        1.5
+                    </output>
+                </label>
+
+                <input type="range"
+                       id="lineSpacing"
+                       min="1"
+                       max="2.5"
+                       step="0.1"
+                       value="1.5" />
+
+                <button type="button" id="themeToggle" aria-pressed="false">
+                    Night Mode
+                </button>
+            </section>
+
+            <!-- the focus tools -->
+            <section class="control-section" aria-labelledby="focus-reading">
+                <h2 id="focus-reading">Focus Tools</h2>
+
+                <button type="button" id="bionicToggle" aria-pressed="false">
+                    Bionic Reading
+                </button>
+
+                <button type="button" id="maskToggle" aria-pressed="false">
+                    Reading Mask
+                </button>
+
+                <button type="button" id="lineFocusToggle" aria-pressed="false">
+                    Line Focus
+                </button>
+
+                <button type="button" id="sentenceFocusToggle" aria-pressed="false">
+                    Sentence Focus
+                </button>
+            </section>
+
+            <!-- TTS section -->
+            <section class="control-section" aria-labelledby="speech-heading">
+                <h2 id="speech-heading">Text-to-Speech</h2>
+
+                <div class="speech-controls">
+                    <button type="button" id="previousSentence">
+                        Previous
+                    </button>
+
+                    <button type="button" id="speechToggle">
+                        Play
+                    </button>
+
+                    <button type="button" id="nextSentence">
+                        Next
+                    </button>
+                </div>
+
+                <label for="speechRate">
+                    Reading Speed
+                    <output id="speechRateValue" for="speechRate">1.0×</output>
+                </label>
+
+                <input type="range"
+                       id="speechRate"
+                       min="0.5"
+                       max="2"
+                       step="0.1"
+                       value="1">
+            </section>
+            <button type="button" id="bookmarksButton">
+                Bookmarks
+            </button>
+        </aside>
+
+        <main class="document-panel">
+            <header class="document-header">
+                <p class="document-source" id="documentSource">
+                    No document selected
+                </p>
+                <h2 id="documentTitle">Reader</h2>
+
+                <p id="documentAuthor"></p>
+            </header>
+
+            <div id="readerStatus"
+                 role="status"
+                 aria-live="polite">
+                Paste a public webpage link or upload a PDF to begin.
+            </div>
+
+            <article id="displayText"
+                     class="document-content"
+                     aria-labelledby="documentTitle"
+                     tabindex="0"></article>
         </main>
-        <script src="/scripts/reader.js"></script>
+    </div>
+    
 </body>
 </html>

@@ -1,29 +1,18 @@
 {
   "manifest_version": 3,
   "name": "AD_HDFocuser",
-  "minimum_chrome_version": "26.0.0.0",
+  "minimum_chrome_version": "88.0.0.0",
   "version": "0.0.1",
   "homepage_url": "https://sarahmorrisonsmith.com/",
-  "action": {
-    "default_popup": "html/reader.html"
+
+  "action": {},
+  "background": {
+    "service_worker": "scripts/background.js"
   },
   
   "icons": {
   },
    "host_permissions": [
     "<all_urls>"
-   ],
-  "content_scripts": [
-    {
-      "matches": [
-        "https://sarahmorrisonsmith.com/*"
-      ],
-      "js": [
-        "scripts/jquery.min.js",
-        "scripts/reader.js"
-      ],
-      "css": [ "css/reader.css" ],
-      "run_at": "document_idle"
-    }
-  ]
+   ]
 }
