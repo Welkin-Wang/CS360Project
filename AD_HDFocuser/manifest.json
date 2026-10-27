@@ -7,8 +7,12 @@
   "action": {
     "default_popup": "html/reader.html"
   },
+  
   "icons": {
   },
+   "host_permissions": [
+    "<all_urls>"
+   ],
   "content_scripts": [
     {
       "matches": [
