@@ -1,6 +1,6 @@
 {
-  "manifest_version": 1,
-  "name": "ADHD Focuser",
+  "manifest_version": 3,
+  "name": "AD_HDFocuser",
   "minimum_chrome_version": "26.0.0.0",
   "version": "0.0.1",
   "homepage_url": "https://sarahmorrisonsmith.com/",
