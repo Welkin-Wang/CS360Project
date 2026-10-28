@@ -49,7 +49,38 @@ body {
     color: black;
 }
 
+/*CSS Selector methods derived from https://www.w3schools.com/css/css_selectors_grouping.asp
+ Makes it so the panel on the side also gets the dark mode toggle with their existing classes*/
+
+.light-theme .reader-layout,
+.light-theme .control-panel,
+.light-theme .document-panel,
+.light-theme .control-section,
+.light-theme .document-content {
+    background-color: #ffffff;
+}
+
 .dark-theme {
+    background-color: #000000;
+    color: #ffffff;
+}
+
+.dark-theme .reader-layout,
+.dark-theme .control-panel,
+.dark-theme .document-panel,
+.dark-theme .control-section,
+.dark-theme .document-content {
+    background-color: #000000;
+}
+
+.light-theme input,
+.light-theme button {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+.dark-theme input,
+.dark-theme button {
     background-color: #000000;
     color: #ffffff;
 }
@@ -114,13 +145,13 @@ body {
         display: flex;
         justify-content: space-between;
         gap: 12px;
-        color: var(--color-muted);
+        color: #7f7c9a;
         font-size: 0.875rem;
         font-weight: 600;
     }
 
 output {
-    color: var(--color-text);
+    color: #7f7c9a;
     font-variant-numeric: tabular-nums;
 }
 

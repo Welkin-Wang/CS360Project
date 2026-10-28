@@ -36,7 +36,7 @@ extractBtn.addEventListener('click', async () => {
     links so that the extension does not break if something is wrong */
 });
 
-//themeToggle
+//themeToggle from project 0
 document.addEventListener("DOMContentLoaded", function() { /*Function for changing the theme with the button*/
     const themeToggleBtn = document.getElementById("themeToggle");
 
