@@ -44,6 +44,16 @@ body {
     font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
+.light-theme {
+    background-color: white;
+    color: black;
+}
+
+.dark-theme {
+    background-color: #000000;
+    color: #ffffff;
+}
+
 /* Main two-column layout */
 .reader-layout {
     display: grid;

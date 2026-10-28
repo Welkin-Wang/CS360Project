@@ -35,3 +35,22 @@ extractBtn.addEventListener('click', async () => {
     /*These both are to catch any errors involving inproper 
     links so that the extension does not break if something is wrong */
 });
+
+//themeToggle
+document.addEventListener("DOMContentLoaded", function() { /*Function for changing the theme with the button*/
+    const themeToggleBtn = document.getElementById("themeToggle");
+
+    //https://www.w3schools.com/js/js_htmldom_eventlistener.asp
+    //Source of understanding event listeners for the changing from day to night theme for the switch theme requirement
+    themeToggleBtn.addEventListener("click", function() {
+        if (document.body.classList.contains("light-theme")) { //Check for light class inside of code
+            document.body.classList.remove("light-theme"); //replace and add new class in place
+            document.body.classList.add("dark-theme");
+        } else {
+            document.body.classList.remove("dark-theme"); //Check for dark class inside of code
+            document.body.classList.add("light-theme");
+        }    
+        //https://www.w3schools.com/jsref/prop_element_classlist.asp
+        //Source of understanding class lists and tinkering with them
+    });
+});
