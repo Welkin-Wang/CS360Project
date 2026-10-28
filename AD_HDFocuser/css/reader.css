@@ -1,0 +1,321 @@
+/*https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Cascading_variables/Using_custom_properties*
+  for custom properties
+*/
+
+:root {
+    --panel-width: 280px;
+    --color-background: #f4f6f8;
+    --color-panel: #ffffff;
+    --color-content: #ffffff;
+    --color-text: #20242a;
+    --color-muted: #667085;
+    --color-border: #d0d5dd;
+    --color-primary: #26734d;
+    --color-primary-hover: #1f5f40;
+    --color-primary-light: #e8f3ed;
+    --border-radius: 8px;
+    --panel-shadow: 2px 0 12px rgb(0 0 0 / 8%);
+}
+
+/*https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Styling_basics/Pseudo_classes_and_elements
+    pseudo classes!
+Including padding and borders inside the declared width and height.
+*/
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    min-height: 100%;
+}
+
+/*
+    https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Styling_basics/Values_and_units
+    text values
+*/
+body {
+    min-height: 100vh;
+    margin: 0;
+    color: var(--color-text);
+    background: var(--color-background);
+    font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+/* Main two-column layout */
+.reader-layout {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    min-height: 100vh;
+}
+
+/* Left control panel */
+.control-panel {
+    position: sticky;
+    top: 0;
+    width: var(--panel-width);
+    min-width: 220px;
+    max-width: 420px;
+    height: 100vh;
+    padding: 24px 20px;
+
+    overflow: auto;
+    resize: horizontal;
+
+    background: var(--color-panel);
+    border-right: 1px solid var(--color-border);
+    box-shadow: var(--panel-shadow);
+}
+
+.reader-header {
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+    .reader-header h1 {
+        margin: 0;
+        color: var(--color-primary);
+        font-size: 1.35rem;
+        line-height: 1.2;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+/* Groups of related controls */
+.control-section {
+    display: grid;
+    gap: 10px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+    .control-section h2 {
+        margin: 0 0 4px;
+        font-size: 1rem;
+        line-height: 1.3;
+    }
+
+    /*https://www.w3schools.com/cssref/css3_pr_justify-content.php
+        alignment
+    */
+    .control-section label {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        color: var(--color-muted);
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+output {
+    color: var(--color-text);
+    font-variant-numeric: tabular-nums;
+}
+
+/* URL input and button */
+.url-controls {
+    display: grid;
+    gap: 8px;
+}
+
+input[type="url"] {
+    width: 100%;
+    min-height: 40px;
+    padding: 8px 10px;
+    color: var(--color-text);
+    background: var(--color-content);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    font: inherit;
+}
+
+    input[type="url"]::placeholder {
+        color: #98a2b3;
+    }
+
+/* PDF file input */
+input[type="file"] {
+    width: 100%;
+    color: var(--color-muted);
+    font: inherit;
+    font-size: 0.8rem;
+}
+
+    input[type="file"]::file-selector-button {
+        min-height: 38px;
+        margin-right: 8px;
+        padding: 7px 10px;
+        color: var(--color-primary);
+        background: var(--color-primary-light);
+        border: 1px solid var(--color-primary);
+        border-radius: var(--border-radius);
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+/* Range sliders */
+input[type="range"] {
+    width: 100%;
+    accent-color: var(--color-primary);
+    cursor: pointer;
+}
+
+/* General button style */
+button {
+    min-height: 40px;
+    padding: 8px 12px;
+    color: var(--color-text);
+    background: var(--color-content);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    font: inherit;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 150ms ease, background-color 150ms ease, border-color 150ms ease, transform 100ms ease;
+}
+
+    button:hover {
+        color: var(--color-primary);
+        background: var(--color-primary-light);
+        border-color: var(--color-primary);
+    }
+
+    button:active {
+        transform: translateY(1px);
+    }
+
+/* The main Open Link button */
+#extractBtn {
+    color: #ffffff;
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+    #extractBtn:hover {
+        color: #ffffff;
+        background: var(--color-primary-hover);
+        border-color: var(--color-primary-hover);
+    }
+
+/* Future active states for toggle buttons */
+button[aria-pressed="true"] {
+    color: #ffffff;
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+/* Text-to-speech button row */
+.speech-controls {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+}
+
+    .speech-controls button {
+        padding-inline: 6px;
+        font-size: 0.75rem;
+    }
+
+
+
+/* Visible keyboard focus */
+button:focus-visible,
+input:focus-visible {
+    outline: 3px solid rgb(38 115 77 / 30%);
+    outline-offset: 2px;
+}
+
+/*https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/clamp
+    clamp!
+*/
+/* Right document area */
+.document-panel {
+    width: min(100%, 960px);
+    min-height: 100vh;
+    margin-inline: auto;
+    padding: 48px clamp(24px, 6vw, 72px);
+}
+
+.document-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.document-heading {
+    min-width: 0;
+}
+
+#bookmarksButton {
+    flex: 0 0 44px;
+    width: 44px;
+    min-height: 44px;
+    margin: 0;
+    padding: 10px;
+    color: #2563eb;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--border-radius);
+}
+
+    #bookmarksButton:hover {
+        color: #1d4ed8;
+        background: #eff6ff;
+        border-color: #bfdbfe;
+    }
+
+    #bookmarksButton svg {
+        display: block;
+        width: 100%;
+        height: 100%;
+    }
+
+.document-source {
+    margin: 0 0 8px;
+    color: var(--color-primary);
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.document-header h2 {
+    margin: 0;
+    font-size: clamp(1.8rem, 4vw, 2.5rem);
+    line-height: 1.2;
+}
+
+#documentAuthor {
+    min-height: 1.25em;
+    margin: 8px 0 0;
+    color: var(--color-muted);
+}
+
+#readerStatus {
+    margin-top: 32px;
+    padding: 16px;
+    color: var(--color-muted);
+    background: var(--color-content);
+    border: 1px dashed var(--color-border);
+    border-radius: var(--border-radius);
+}
+
+/*
+ * white-space: pre-wrap preserves line breaks from extracted plain text.
+ */
+.document-content {
+    margin-top: 32px;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.125rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+

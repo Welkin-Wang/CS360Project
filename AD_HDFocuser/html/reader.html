@@ -29,7 +29,7 @@
                     </button>
                 </div>
                 <!-- handle pdf -->
-                <label for="pdfInput">Upload a PDF</label>
+                <label for="pdfInput">Open a PDF</label>
                 <input type="file"
                        id="pdfInput"
                        accept="application/pdf,.pdf" />
@@ -120,19 +120,41 @@
                        step="0.1"
                        value="1">
             </section>
-            <button type="button" id="bookmarksButton">
-                Bookmarks
-            </button>
+            
         </aside>
 
         <main class="document-panel">
             <header class="document-header">
-                <p class="document-source" id="documentSource">
-                    No document selected
-                </p>
-                <h2 id="documentTitle">Reader</h2>
+                <div class="document-heading">
+                    <p class="document-source" id="documentSource">
+                        No document selected
+                    </p>
+                    <h2 id="documentTitle">Reader</h2>
 
-                <p id="documentAuthor"></p>
+                    <p id="documentAuthor"></p>
+
+                </div>
+
+                <!-- bookmark function will be added later -->
+                <button type="button"
+                id="bookmarksButton"
+                class="icon-button"
+                aria-label="Open bookmarks"
+                title="Open bookmarks">
+                
+                    <svg viewBox="0 0 24 24"
+                         aria-hidden="true"
+                         focusable="false">
+                        <!-- Custom bookmark SVG created for the AD/HD Focuser project. -->
+                        <path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1Z"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round" />
+                    </svg>
+                </button>
+
             </header>
 
             <div id="readerStatus"
