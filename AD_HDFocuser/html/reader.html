@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ADHD Reader</title>
     <link rel="stylesheet" href="../css/reader.css">
-    <script src="../scripts/reader.js" defer></script>
+    <script type="module" src="../scripts/reader.js"></script>
 </head>
-<body class = "light-theme">
+<body class="light-theme">
     <div class="reader-layout">
         <aside class="control-panel" aria-label="Reader Controls">
             <header class="reader-header">
@@ -120,7 +120,7 @@
                        step="0.1"
                        value="1">
             </section>
-            
+
         </aside>
 
         <main class="document-panel">
@@ -137,11 +137,11 @@
 
                 <!-- bookmark function will be added later -->
                 <button type="button"
-                id="bookmarksButton"
-                class="icon-button"
-                aria-label="Open bookmarks"
-                title="Open bookmarks">
-                
+                        id="bookmarksButton"
+                        class="icon-button"
+                        aria-label="Open bookmarks"
+                        title="Open bookmarks">
+
                     <svg viewBox="0 0 24 24"
                          aria-hidden="true"
                          focusable="false">
@@ -169,6 +169,6 @@
                      tabindex="0"></article>
         </main>
     </div>
-    
+
 </body>
 </html>

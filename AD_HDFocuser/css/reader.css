@@ -17,6 +17,19 @@
     --panel-shadow: 2px 0 12px rgb(0 0 0 / 8%);
 }
 
+body.dark-theme {
+    --color-background: #121417;
+    --color-panel: #1a1e23;
+    --color-content: #20252b;
+    --color-text: #f5f7fa;
+    --color-muted: #b8c0cc;
+    --color-border: #3a424d;
+    --color-primary: #66c995;
+    --color-primary-hover: #83d9aa;
+    --color-primary-light: #173b2a;
+    --panel-shadow: 2px 0 12px rgb(0 0 0 / 35%);
+}
+
 /*https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Styling_basics/Pseudo_classes_and_elements
     pseudo classes!
 Including padding and borders inside the declared width and height.
@@ -42,47 +55,6 @@ body {
     color: var(--color-text);
     background: var(--color-background);
     font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-}
-
-.light-theme {
-    background-color: white;
-    color: black;
-}
-
-/*CSS Selector methods derived from https://www.w3schools.com/css/css_selectors_grouping.asp
- Makes it so the panel on the side also gets the dark mode toggle with their existing classes*/
-
-.light-theme .reader-layout,
-.light-theme .control-panel,
-.light-theme .document-panel,
-.light-theme .control-section,
-.light-theme .document-content {
-    background-color: #ffffff;
-}
-
-.dark-theme {
-    background-color: #000000;
-    color: #ffffff;
-}
-
-.dark-theme .reader-layout,
-.dark-theme .control-panel,
-.dark-theme .document-panel,
-.dark-theme .control-section,
-.dark-theme .document-content {
-    background-color: #000000;
-}
-
-.light-theme input,
-.light-theme button {
-    background-color: #ffffff;
-    color: #000000;
-}
-
-.dark-theme input,
-.dark-theme button {
-    background-color: #000000;
-    color: #ffffff;
 }
 
 /* Main two-column layout */
@@ -145,13 +117,13 @@ body {
         display: flex;
         justify-content: space-between;
         gap: 12px;
-        color: #7f7c9a;
+        color: var(--color-muted);
         font-size: 0.875rem;
         font-weight: 600;
     }
 
 output {
-    color: #7f7c9a;
+    color: var(--color-muted);
     font-variant-numeric: tabular-nums;
 }
 
@@ -173,7 +145,7 @@ input[type="url"] {
 }
 
     input[type="url"]::placeholder {
-        color: #98a2b3;
+        color: var(--color-muted);
     }
 
 /* PDF file input */
@@ -300,16 +272,16 @@ input:focus-visible {
     min-height: 44px;
     margin: 0;
     padding: 10px;
-    color: #2563eb;
+    color: var(--color-primary);
     background: transparent;
     border: 1px solid transparent;
     border-radius: var(--border-radius);
 }
 
     #bookmarksButton:hover {
-        color: #1d4ed8;
-        background: #eff6ff;
-        border-color: #bfdbfe;
+        color: var(--color-primary-hover);
+        background: var(--color-primary-light);
+        border-color: var(--color-primary);
     }
 
     #bookmarksButton svg {
