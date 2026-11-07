@@ -332,7 +332,7 @@ input:focus-visible {
 .document-content {
     margin-top: 32px;
     font-family: Georgia, "Times New Roman", serif;
-    font-size: 1.125rem;
+    font-size: 18px;
     line-height: 1.5;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
@@ -371,4 +371,34 @@ input:focus-visible {
 
 .document-figure figcaption {
     margin-top: 0.5rem;
+}
+
+/* Bionic Reading */
+
+/* Make the beginning of each word bold. */
+.bionic-bold {
+    font-weight: 800;
+}
+
+
+/* Line Focus */
+
+/* Grey out all extracted text when Line Focus is enabled. */
+.document-content.line-focus-active p,
+.document-content.line-focus-active h3,
+.document-content.line-focus-active figcaption {
+    color: var(--color-muted);
+    opacity: 0.45;
+    cursor: pointer;
+    transition: background-color 150ms ease, opacity 150ms ease;
+}
+
+/* Highlight the line selected by the user. */
+.document-content.line-focus-active .line-focused {
+    color: var(--color-text);
+    background-color: var(--color-primary-light);
+    opacity: 1;
+    outline: 2px solid var(--color-primary);
+    border-radius: 4px;
+    cursor: pointer;
 }

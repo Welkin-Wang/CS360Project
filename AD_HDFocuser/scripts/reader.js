@@ -20,6 +20,242 @@ const readerStatus = document.getElementById("readerStatus");
 const documentSource = document.getElementById("documentSource");
 const documentTitle = document.getElementById("documentTitle");
 const documentAuthor = document.getElementById("documentAuthor");
+const textSize = document.getElementById("textSize");
+const textSizeValue = document.getElementById("textSizeValue");
+const lineSpacing = document.getElementById("lineSpacing");
+const lineSpacingValue = document.getElementById("lineSpacingValue");
+const bionicToggle = document.getElementById("bionicToggle");
+const lineFocusToggle = document.getElementById("lineFocusToggle");
+
+// Keep track of which reading features are enabled.
+let bionicReading = false;
+let lineFocusEnabled = false;
+
+// Change the document text size when the slider moves.
+textSize.addEventListener("input", function () {
+
+    // Get the current slider value.
+    const currentSize = textSize.value;
+
+    // Change the font size of the extracted document.
+    displayText.style.fontSize = currentSize + "px";
+
+    // Update the displayed number.
+    textSizeValue.textContent = currentSize + "px";
+});
+
+// Change the spacing between lines when the slider moves.
+lineSpacing.addEventListener("input", function () {
+
+    // Get the current line spacing value.
+    const currentSpacing = lineSpacing.value;
+
+    // Change the line spacing of the extracted document.
+    displayText.style.lineHeight = currentSpacing;
+
+    // Update the displayed number.
+    lineSpacingValue.textContent = currentSpacing;
+});
+
+// Function for applying Bionic Reading.
+function applyBionicReading() {
+
+    // Find all the extracted text elements.
+    const textElements = displayText.querySelectorAll("p, h3, figcaption");
+
+    // Go through each text element.
+    textElements.forEach(function (element) {
+
+        // Save the original text before changing it.
+        if (!element.dataset.originalText) {
+            element.dataset.originalText = element.textContent;
+        }
+
+        // Get the original text.
+        const originalText = element.dataset.originalText;
+
+        // Clear the current contents.
+        element.replaceChildren();
+
+        // Separate the text into individual words and spaces.
+        const words = originalText.split(/(\s+)/);
+
+        words.forEach(function (word) {
+
+            // Leave spaces unchanged.
+            if (word.trim() === "") {
+                element.appendChild(document.createTextNode(word));
+                return;
+            }
+
+            // Find the word's letters, excluding punctuation.
+            const wordMatch = word.match(/^([A-Za-zÀ-ÿ]+)(.*)$/);
+
+            if (wordMatch) {
+
+                // Get the letters and punctuation separately.
+                const letters = wordMatch[1];
+                const punctuation = wordMatch[2];
+
+                // Calculate how many letters should be bold.
+                const boldLength = Math.ceil(letters.length / 2);
+
+                // Create a bold element.
+                const boldPart = document.createElement("strong");
+                boldPart.className = "bionic-bold";
+
+                // Put the first portion of the word inside it.
+                boldPart.textContent = letters.substring(0, boldLength);
+
+                // Create a text node for the remaining letters.
+                const remainingPart = document.createTextNode(
+                    letters.substring(boldLength) + punctuation
+                );
+
+                // Add both portions to the document.
+                element.appendChild(boldPart);
+                element.appendChild(remainingPart);
+
+            } else {
+
+                // Leave punctuation and other characters unchanged.
+                element.appendChild(document.createTextNode(word));
+            }
+        });
+    });
+}
+
+// Turn Bionic Reading on and off.
+bionicToggle.addEventListener("click", function () {
+
+    // Switch between enabled and disabled.
+    bionicReading = !bionicReading;
+
+    // Update the button's pressed state.
+    bionicToggle.setAttribute("aria-pressed", String(bionicReading));
+
+    if (bionicReading) {
+
+        // Apply Bionic Reading.
+        applyBionicReading();
+
+    } else {
+
+        // Restore the original extracted text.
+        const textElements = displayText.querySelectorAll("p, h3, figcaption");
+
+        textElements.forEach(function (element) {
+
+            if (element.dataset.originalText !== undefined) {
+                element.textContent = element.dataset.originalText;
+            }
+
+        });
+    }
+});
+
+// Turn Line Focus on and off.
+lineFocusToggle.addEventListener("click", function () {
+
+    // Switch between enabled and disabled.
+    lineFocusEnabled = !lineFocusEnabled;
+
+    // Update the button's pressed state.
+    lineFocusToggle.setAttribute("aria-pressed", String(lineFocusEnabled));
+
+    if (lineFocusEnabled) {
+
+        // Add the class that greys out the extracted text.
+        displayText.classList.add("line-focus-active");
+
+    } else {
+
+        // Remove the greyed-out appearance.
+        displayText.classList.remove("line-focus-active");
+
+        // Remove the previous highlighted selection.
+        const selectedLines = displayText.querySelectorAll(".line-focused");
+
+        selectedLines.forEach(function (element) {
+            element.classList.remove("line-focused");
+        });
+    }
+});
+
+
+// Detect when the user clicks on extracted text.
+displayText.addEventListener("click", function (event) {
+
+    // Do nothing if Line Focus is disabled.
+    if (!lineFocusEnabled) {
+        return;
+    }
+
+    // Find the paragraph, heading, or caption that was clicked.
+    const selectedLine = event.target.closest("p, h3, figcaption");
+
+    // Make sure the selected element belongs to the document.
+    if (!selectedLine || !displayText.contains(selectedLine)) {
+        return;
+    }
+
+    // Find the previously highlighted text.
+    const previousSelection = displayText.querySelectorAll(".line-focused");
+
+    // Remove the previous highlight.
+    previousSelection.forEach(function (element) {
+        element.classList.remove("line-focused");
+    });
+
+    // Highlight the newly selected text.
+    selectedLine.classList.add("line-focused");
+});
+
+// Separate extracted website text into individual lines.
+function renderPlainText(pureText) {
+
+    // Remove the previous document.
+    displayText.replaceChildren();
+
+    // Separate the text using newline characters.
+    const textLines = pureText.split(/\r?\n/);
+
+    // Go through each extracted line.
+    textLines.forEach(function (line) {
+
+        // Ignore empty lines.
+        if (line.trim() === "") {
+            return;
+        }
+
+        // Create a paragraph for the extracted line.
+        const paragraph = document.createElement("p");
+
+        // Put the extracted text inside the paragraph.
+        paragraph.textContent = line;
+
+        // Add the paragraph to the reader.
+        displayText.appendChild(paragraph);
+    });
+
+    // Apply any reading features that are already enabled.
+    refreshReaderFeatures();
+}
+
+
+// Refresh the reading features after loading a document.
+function refreshReaderFeatures() {
+
+    // Apply Bionic Reading if it is enabled.
+    if (bionicReading) {
+        applyBionicReading();
+    }
+
+    // Keep Line Focus enabled if it is already active.
+    if (lineFocusEnabled) {
+        displayText.classList.add("line-focus-active");
+    }
+}
 
 // Convert PDF.js image coordinates into exact page image candidates.
 function createImageCandidates(imageCoordinates, pageNumber) {
@@ -185,10 +421,11 @@ extractBtn.addEventListener('click', async () => {
         const parser = new DOMParser();
         const doc = parser.parseFromString(htmlText, 'text/html');
 
-        //Just grab the body text of the webpage and display it
-        // (This gets all the words on the page without complex filtering)
+        // Extract the text from the webpage.
         const pureText = doc.body.innerText;
-        displayText.innerText = pureText;
+
+        // Separate the text into individual paragraphs.
+        renderPlainText(pureText);
 
     } catch (error) {
         displayText.innerText = "Error: Could not load the website text.";
@@ -563,6 +800,8 @@ pdfInput.addEventListener("change", async function () {
             }
         }
 
+        // Apply the enabled reading features to the newly extracted PDF.
+        refreshReaderFeatures();
         // Update the UI with the PDF metadata and extracted text.
         documentSource.textContent =`Local PDF - ${loadedPdf.numPages} pages`;
         documentTitle.textContent = resolvedDocumentTitle;
