@@ -1,0 +1,16 @@
+﻿Instructions to run the project:
+
+1. accept the project
+2. click on "back to project"
+3. click on API keys
+4. click on "Create new secret keys"
+5. copy the key
+6. in the server folder, create a file named ".env", note it may have disappeared due to it being ignored for security reasons, try "nano .env", and write "OPENAI_API_KEY=YOUR_OWN_KEY". no space in between, replace YOUR_OWN_KEY with your API key
+7. when running the web, first cd to server, and then run "node index.js" in your terminal, you should see something similar to "Server running at http://localhost:3000"
+8. go to the extension page, turn it on, click the label, open the website and upload the pdf that is inside the project folder called test example
+
+Some notes:
+1. use the example files in test example folder first, the code still has some issues with longer essays
+2. it is ok if the processing takes time for now
+3. always f12 for console outputs
+4. Don't put it in the second window slot. I don't know why, but just don't, haha(for fun)
