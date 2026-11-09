@@ -947,6 +947,12 @@ document.body.appendChild(bottomMask);
 // Position the Reading Mask around the line being hovered over.
 function updateReadingMask(event) {
 
+    // Do nothing if Reading Mask is disabled.
+    //THIS MUST BE HERE OR ELSE THE READING MASK WILL BE ON ALL THE TIME
+    if (!readingMaskEnabled) {
+        return;
+    }
+
     // Find the paragraph, heading, or caption being hovered over.
     const hoveredElement = event.target.closest("p, h3, figcaption");
 
