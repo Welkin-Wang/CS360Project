@@ -380,7 +380,6 @@ input:focus-visible {
     font-weight: 800;
 }
 
-
 /*Line Focus*/
 
 /* Grey out all extracted text when Line Focus is enabled. */
@@ -421,6 +420,8 @@ input:focus-visible {
     outline: 2px solid var(--color-primary);
     border-radius: 4px;
     cursor: pointer;
+/*box decoration break and webkit derived from https://www.w3schools.com/cssref/css3_pr_box-decoration-break.php
+This is so that each sentence can recieve its own complete hightlighting instead of all the lines having it at once*/
     box-decoration-break: clone;
     -webkit-box-decoration-break: clone;
 }
