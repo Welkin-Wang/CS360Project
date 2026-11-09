@@ -519,16 +519,19 @@ extractBtn.addEventListener('click', async () => {
         displayText.innerText = "Error: Could not load the website text.";
     }
     //Try and catch derived from https://www.w3schools.com/js/js_errors_intro.asp
-    /*These both are to catch any errors involving inproper 
+    /*These both are to catch any errors involving improper 
     links so that the extension does not break if something is wrong */
 });
 
 
 //https://github.com/mozilla/pdf.js/blob/master/docs/contents/examples/index.md
-//how to navigare through the pdf.js library and extract text from a pdf file
+// How to navigate the PDF.js library and extract text from a PDF file.
+
+// Read a PDF, extract text and image positions, and send the structure
+// to the backend as JSON data.
 pdfInput.addEventListener("change", async function () {
     const selectedPdfFile = pdfInput.files[0];
-    //file validation
+    // Validate that a file was selected.
     if (!selectedPdfFile) {
         return;
     }
@@ -557,20 +560,18 @@ pdfInput.addEventListener("change", async function () {
 
         //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise
         const loadedPdf = await pdfLoadingTask.promise;
-        //an array that will save data for each page, the data is the text and the position of the text on the page
+        // Store the text and image position data for every page.
         const extractedPdfPages = [];
         let totalTextItemCount = 0;
 
-        //extracting texts per page. The same tutorial comes from pdf js
+        // Extract the text and image positions from each page.
         for (let pageNumber = 1; pageNumber <= loadedPdf.numPages; pageNumber++)
         {
             readerStatus.textContent =`Extracting page ${pageNumber} of ${loadedPdf.numPages}...`;
 
             const pdfPage = await loadedPdf.getPage(pageNumber);
 
-            // Create the page coordinate system using viewport
-            //so we will use the viewport to get the position of the text on the page and
-            //use it to align the text with the image of the page later on
+            // Create the page coordinate system used for text positions.
             const pageViewport = pdfPage.getViewport({
                 scale: 1
             });
@@ -587,7 +588,7 @@ pdfInput.addEventListener("change", async function () {
                     continue;
                 }
 
-                //extract position from the viewport
+                // Convert the text origin into viewport coordinates.
                 const viewportPoint = pageViewport.convertToViewportPoint(
                     textItem.transform[4],//horizontal
                     textItem.transform[5]//vertical
@@ -609,7 +610,7 @@ pdfInput.addEventListener("change", async function () {
                 });
             }
 
-            // Render once so PDF.js can record embedded image positions.
+            // Render to a hidden canvas so PDF.js can record image positions.
             const imageCanvas = document.createElement("canvas");
             imageCanvas.width = Math.ceil(pageViewport.width);
             imageCanvas.height = Math.ceil(pageViewport.height);
@@ -619,7 +620,7 @@ pdfInput.addEventListener("change", async function () {
                 throw new Error("Canvas context is unavailable.");
             }
 
-            //use pdf.js 's build-in render function to render the page and record the image positions
+            // Use PDF.js render() to draw the page and record image positions.
             const imageRenderTask = pdfPage.render({
                 canvasContext: imageContext,
                 viewport: pageViewport,
@@ -628,7 +629,7 @@ pdfInput.addEventListener("change", async function () {
 
             await imageRenderTask.promise;
 
-            //also use the build-in attribute of the render function to get the image coordinates
+            // Read the recorded image coordinates from the page after rendering.
             const pageImageCandidates = createImageCandidates(
                 pdfPage.imageCoordinates,
                 pageNumber
@@ -636,13 +637,13 @@ pdfInput.addEventListener("change", async function () {
             
             totalTextItemCount += pageTextItems.length;
 
-            // Store the completed page data.
+            // Store the completed page data
             extractedPdfPages.push({
                 page: pageNumber,
                 width: Math.round(pageViewport.width),
                 height: Math.round(pageViewport.height),
                 textItems: pageTextItems,
-                // AI can select these IDs but cannot change their positions.
+                // AI can select these IDs but cannot change their positions
                 imageCandidates: pageImageCandidates
             });
 
@@ -650,7 +651,23 @@ pdfInput.addEventListener("change", async function () {
         }
         readerStatus.textContent = "Analyzing PDF layout...";
 
-        // Prepare the PDF and extracted structure to be sent later.
+        // Stop if PDF.js could not find any extractable text.
+        if (totalTextItemCount === 0) {
+            readerStatus.textContent =
+                `Found 0 text items in ${loadedPdf.numPages} pages. ` +
+                "This PDF may contain only images and no extractable text.";
+
+            documentSource.textContent =
+                `Local PDF - ${loadedPdf.numPages} pages`;
+
+            documentTitle.textContent = selectedPdfFile.name;
+            displayText.textContent =
+                "You've selected a file with purely images. Please try a PDF with selectable text";
+
+            return;
+        }
+
+        // Prepare the PDF and extracted structure to be sent later
         const pdfFormData = new FormData();
         pdfFormData.append("pdf", selectedPdfFile);
         pdfFormData.append(
@@ -675,21 +692,21 @@ pdfInput.addEventListener("change", async function () {
 
         console.log("Backend response:", serverResult);
 
-        // Connect each ID to its original PDF text item.
         const textItemsById = new Map();
+        const imageCandidatesById = new Map();
 
         for (const page of extractedPdfPages) {
+
+            // Connect each text ID to its original text item.
             for (const textItem of page.textItems) {
                 textItemsById.set(textItem.id, textItem);
             }
-        }
 
-        // Connect each local image ID to its exact PDF.js position.
-        const imageCandidatesById = new Map();
-        for (const page of extractedPdfPages) {
+            // Connect each image ID to its position.
             for (const candidate of page.imageCandidates) {
                 imageCandidatesById.set(candidate.id, candidate);
             }
+        
         }
 
         // Validate semantic blocks returned by AI.
@@ -701,17 +718,18 @@ pdfInput.addEventListener("change", async function () {
             "caption",
             "footer"
         ]);
+
         const aiBlocks = serverResult.analysis.blocks;
         const seenBlockIds = new Set();
         const orderedTextIds = [];
         let blocksAreValid = Array.isArray(aiBlocks) && aiBlocks.length > 0;
 
-        // Check the type and IDs of every block returned by AI.
+    // Check the type and IDs of every block returned by AI.
+    // Reject AI blocks with missing data, duplicate IDs, invalid types,
+    // or missing text item lists.
         if (blocksAreValid) {
             for (const block of aiBlocks) {
-                if (
-                    !block ||
-                    typeof block.id !== "string" ||
+                if (!block || typeof block.id !== "string" ||
                     seenBlockIds.has(block.id) ||
                     !allowedBlockTypes.has(block.type) ||
                     !Array.isArray(block.textItemIds) ||
@@ -727,6 +745,8 @@ pdfInput.addEventListener("change", async function () {
         }
 
         // Every extracted text item must appear once and only once.
+        // TODO: Merge text fragments before AI analysis so long documents do
+        // not fall back to one large block when an ID is missing.
         const uniqueTextIds = new Set(orderedTextIds);
         blocksAreValid = blocksAreValid &&
             orderedTextIds.length === textItemsById.size &&
@@ -825,7 +845,7 @@ pdfInput.addEventListener("change", async function () {
         // Turn each semantic block into a simple HTML element.
         for (const block of safeBlocks) {
             const blockText = getText(block.textItemIds);
-
+            // Choose the HTML element and class that match the block type.
             if (
                 blockText !== "" &&
                 block.type !== "title" &&
@@ -846,8 +866,11 @@ pdfInput.addEventListener("change", async function () {
             }
 
             // Insert selected figures immediately after their related block.
+            // Find figures that AI assigned to the current text block.
             const figuresAfterBlock = figuresByBlockId.get(block.id) || [];
+            // Insert each assigned figure in order.
             for (const figure of figuresAfterBlock) {
+                // Rebuild the caption from its original text IDs.
                 const captionText = figure.captionTextItemIds
                     .map(function (id) {
                         return textItemsById.get(id).text;
@@ -856,10 +879,12 @@ pdfInput.addEventListener("change", async function () {
                     .trim();
 
                 try {
+                    // Use the selected image ID to get its page and crop bounds.
                     const imageCandidate = imageCandidatesById.get(figure.imageId);
                     const figureElement = document.createElement("figure");
                     figureElement.className = "document-figure";
 
+                    // Render the page and crop the selected image.
                     const image = await createFigureImage(
                         loadedPdf,
                         imageCandidate,
@@ -868,6 +893,7 @@ pdfInput.addEventListener("change", async function () {
                     );
                     figureElement.appendChild(image);
 
+                    // Add the caption only when text exists.
                     if (captionText !== "") {
                         const captionElement = document.createElement("figcaption");
                         captionElement.textContent = captionText;
@@ -878,6 +904,7 @@ pdfInput.addEventListener("change", async function () {
                 } catch (error) {
                     console.warn("Figure could not be rendered:", error);
 
+                    // Keep the caption visible even if the image fails.
                     if (captionText !== "") {
                         const fallbackCaption = document.createElement("p");
                         fallbackCaption.className = "document-caption";
