@@ -8,10 +8,11 @@ import express from "express";
 import cors from "cors";
 import multer from "multer";
 import "dotenv/config";
-import OpenAI from "openai"; //lets use this yeahhhhhhhh
+import OpenAI from "openai"; 
 const openai = new OpenAI();
 const app = express();
 const port = 3000;
+
 // Keep the PDF in memory and reject files larger than 10 MB.
 const upload = multer({
     storage: multer.memoryStorage(),
@@ -20,21 +21,22 @@ const upload = multer({
     }
 });
 //https://expressjs.com/en/guide/using-middleware/
-//allow the extension to access the backend server.
+// Allow the extension to access the backend server.
 app.use(cors());
 
 //routing derived from https://expressjs.com/en/guide/routing/
-// a post test in general, not functional
+// Health check route.
 app.get("/health", function (request, response) {
     response.json({
         status: "ok"
     });
 });
 
-//receive the pdf file and the extracted text structure from the frontend, then send it to the OpenAI API for analysis
-//place pdf file into buffer memory for processing
-//if no file or wrong file type, return error message to frontend, otherwise send the file to the OpenAI API for analysis
+// Receive the PDF and extracted structure, then send them to OpenAI for analysis.
+// Multer keeps the PDF in memory while the request is processed.
 app.post("/analyze-pdf", upload.single("pdf"), async function (request, response) {
+
+    // Validate the uploaded file and extracted structure.
     if (!request.file) {
         response.status(400).json({
             error: "No PDF was uploaded."
@@ -56,9 +58,11 @@ app.post("/analyze-pdf", upload.single("pdf"), async function (request, response
         return;
     }
     try {
+        // Convert the received JSON string back into the page array.
         const extractedPdfPages =
             JSON.parse(request.body.pdfStructure);
 
+        // Count all text items received from the frontend.
         const receivedTextItemCount =
             extractedPdfPages.reduce(function (total, page) {
                 return total + page.textItems.length;
@@ -69,16 +73,23 @@ app.post("/analyze-pdf", upload.single("pdf"), async function (request, response
             `and ${receivedTextItemCount} text items.`
         );
 
-        //the extractedpage's structure for the ai model to analyze, in json format
+        if (receivedTextItemCount === 0) {
+            console.log(
+                "Could be a file with purely images"
+            );
+        }
+
+        // Convert the page structure into JSON text for the AI prompt.
         const structureForAi =
             JSON.stringify(extractedPdfPages);
-        //convert the pdf file to base64 and send it to the OpenAI API for analysis
+        // Convert the PDF bytes into Base64 for the OpenAI request.
         const pdfBase64 = request.file.buffer.toString("base64");
         const pdfDataUrl =
             `data:application/pdf;base64,${pdfBase64}`;
 
         // Ask AI to organize existing text and image IDs.
         // Low detail is enough because PDF.js already supplies exact positions.
+        // The AI returns JSON text to the backend.
         const aiResult = await openai.responses.create({
             model: "gpt-6-luna",
             input: [
@@ -143,7 +154,7 @@ app.post("/analyze-pdf", upload.single("pdf"), async function (request, response
             ]
         });
 
-        //parse the output text from the ai model into a json object and send it back to the frontend
+        // Convert the AI JSON text into an object for the frontend response.
         const parsedAnalysis = JSON.parse(aiResult.output_text);
         response.json({
             message: "PDF analyzed successfully.",
@@ -174,12 +185,14 @@ app.use(function (error, request, response, next) {
         response.status(413).json({
             error: "The PDF must be 10 MB or smaller."
         });
+       
         return;
     }
 
     next(error);
 });
 
+// Start the backend server.
 app.listen(port, function () {
     console.log(`Server running at http://localhost:${port}`);
 });
