@@ -373,15 +373,15 @@ input:focus-visible {
     margin-top: 0.5rem;
 }
 
-/* Bionic Reading */
+/*Bionic Reading*/
 
-/* Make the beginning of each word bold. */
+/*Make the beginning of each word bold.*/
 .bionic-bold {
     font-weight: 800;
 }
 
 
-/* Line Focus */
+/*Line Focus*/
 
 /* Grey out all extracted text when Line Focus is enabled. */
 .document-content.line-focus-active p,
@@ -393,7 +393,7 @@ input:focus-visible {
     transition: background-color 150ms ease, opacity 150ms ease;
 }
 
-/* Highlight the line selected by the user. */
+/*Highlight the line selected by the user.*/
 .document-content.line-focus-active .line-focused {
     color: var(--color-text);
     background-color: var(--color-primary-light);
@@ -401,4 +401,38 @@ input:focus-visible {
     outline: 2px solid var(--color-primary);
     border-radius: 4px;
     cursor: pointer;
+}
+
+/*Sentence Focus*/
+
+/*Grey out all sentences when Sentence Focus is enabled.*/
+.sentence-focus-active .focus-sentence {
+    color: var(--color-muted);
+    opacity: 0.4;
+    cursor: pointer;
+    transition: background-color 150ms ease, opacity 150ms ease;
+}
+
+/*Highlight the sentence selected by the user. */
+.sentence-focus-active .sentence-focused {
+    color: var(--color-text);
+    background-color: var(--color-primary-light);
+    opacity: 1;
+    outline: 2px solid var(--color-primary);
+    border-radius: 4px;
+    cursor: pointer;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+}
+
+/*Reading Mask*/
+/*Create the semi-transparent boxes that cover or mask the surrounding text. */
+.reading-mask-overlay {
+    position: fixed;
+    left: 0;
+    width: 0;
+    background-color: rgb(0 0 0 / 70%);
+    z-index: 10000;
+    pointer-events: none;
+    display: none;
 }

@@ -31,6 +31,13 @@ const lineFocusToggle = document.getElementById("lineFocusToggle");
 let bionicReading = false;
 let lineFocusEnabled = false;
 
+//Variables for Sentence Focus and Reading Mask.
+const sentenceFocusToggle = document.getElementById("sentenceFocusToggle");
+const readingMaskToggle = document.getElementById("maskToggle");
+
+let sentenceFocusEnabled = false;
+let readingMaskEnabled = false;
+
 // Change the document text size when the slider moves.
 textSize.addEventListener("input", function () {
 
@@ -57,101 +64,196 @@ lineSpacing.addEventListener("input", function () {
     lineSpacingValue.textContent = currentSpacing;
 });
 
-// Function for applying Bionic Reading.
-function applyBionicReading() {
+// Add Bionic Reading formatting to a piece of text.
+function addBionicFormatting(element, text) {
 
-    // Find all the extracted text elements.
+    // Separate the words while keeping their spaces.
+    //regular expression usage derived from https://www.w3schools.com/js/js_regexp_quantifiers.asp
+    //regular expression usage here and afterwards is to make sure we identify all possible letters or
+    //punctuation to detect what MIGHT be sentences or words. I added special accented characters just in case
+    //a text might have those and so the code does not break if it encounters those. 
+    const words = text.split(/(\s+)/);
+
+    words.forEach(function (word) {
+
+        // Leave spaces unchanged.
+        if (word.trim() === "") {
+            element.appendChild(document.createTextNode(word));
+            return;
+        }
+
+        // Separate punctuation from the letters.
+        const wordMatch = word.match(/^([^A-Za-zÀ-ÿ]*)([A-Za-zÀ-ÿ]+)(.*)$/);
+
+        if (wordMatch) {
+
+            const beginning = wordMatch[1];
+            const letters = wordMatch[2];
+            const ending = wordMatch[3];
+
+            // Bold the first half of the word.
+            const boldLength = Math.ceil(letters.length / 2);
+
+            // Create the bold portion.
+            const boldPart = document.createElement("strong");
+            boldPart.className = "bionic-bold";
+            boldPart.textContent = letters.substring(0, boldLength);
+
+            // Add punctuation before the word.
+            element.appendChild(document.createTextNode(beginning));
+
+            // Add the bold portion.
+            element.appendChild(boldPart);
+
+            // Add the remaining letters and punctuation.
+            element.appendChild(document.createTextNode(
+                letters.substring(boldLength) + ending
+            ));
+
+        } else {
+
+            element.appendChild(document.createTextNode(word));
+        }
+    });
+}
+
+// Rebuild the extracted text with the enabled reading features.
+function renderTextFeatures() {
+
+    // Find all paragraphs, headings, and captions.
     const textElements = displayText.querySelectorAll("p, h3, figcaption");
 
-    // Go through each text element.
     textElements.forEach(function (element) {
 
-        // Save the original text before changing it.
-        if (!element.dataset.originalText) {
+        // Save the original text before formatting it.
+        if (element.dataset.originalText === undefined) {
             element.dataset.originalText = element.textContent;
         }
 
         // Get the original text.
         const originalText = element.dataset.originalText;
 
-        // Clear the current contents.
+        // Clear the current formatting.
         element.replaceChildren();
 
-        // Separate the text into individual words and spaces.
-        const words = originalText.split(/(\s+)/);
+        // Check whether Sentence Focus is enabled.
+        if (sentenceFocusEnabled) {
 
-        words.forEach(function (word) {
+            // Separate the text into individual sentences.
+            const sentences = originalText.match(
+                /[^.!?]+[.!?]+["'’”)]*\s*|[^.!?]+$/g
+            ) || [originalText];
 
-            // Leave spaces unchanged.
-            if (word.trim() === "") {
-                element.appendChild(document.createTextNode(word));
-                return;
-            }
+            sentences.forEach(function (sentence) {
 
-            // Find the word's letters, excluding punctuation.
-            const wordMatch = word.match(/^([A-Za-zÀ-ÿ]+)(.*)$/);
+                // Create a separate span for each sentence.
+                const sentenceSpan = document.createElement("span");
+                sentenceSpan.className = "focus-sentence";
 
-            if (wordMatch) {
+                // Apply Bionic Reading if it is enabled.
+                if (bionicReading) {
+                    addBionicFormatting(sentenceSpan, sentence);
+                } else {
+                    sentenceSpan.textContent = sentence;
+                }
 
-                // Get the letters and punctuation separately.
-                const letters = wordMatch[1];
-                const punctuation = wordMatch[2];
+                // Add the sentence to the paragraph.
+                element.appendChild(sentenceSpan);
+            });
 
-                // Calculate how many letters should be bold.
-                const boldLength = Math.ceil(letters.length / 2);
+        } else {
 
-                // Create a bold element.
-                const boldPart = document.createElement("strong");
-                boldPart.className = "bionic-bold";
-
-                // Put the first portion of the word inside it.
-                boldPart.textContent = letters.substring(0, boldLength);
-
-                // Create a text node for the remaining letters.
-                const remainingPart = document.createTextNode(
-                    letters.substring(boldLength) + punctuation
-                );
-
-                // Add both portions to the document.
-                element.appendChild(boldPart);
-                element.appendChild(remainingPart);
-
+            // Apply Bionic Reading without Sentence Focus.
+            if (bionicReading) {
+                addBionicFormatting(element, originalText);
             } else {
 
-                // Leave punctuation and other characters unchanged.
-                element.appendChild(document.createTextNode(word));
+                // Restore the original text.
+                element.textContent = originalText;
             }
-        });
+        }
     });
 }
 
-// Turn Bionic Reading on and off.
+function applyBionicReading() {
+    renderTextFeatures();
+}
+
+//Turn Bionic Reading on and off.
 bionicToggle.addEventListener("click", function () {
 
-    // Switch between enabled and disabled.
+    //Switch between enabled and disabled.
     bionicReading = !bionicReading;
 
-    // Update the button's pressed state.
+    //Update the button's pressed state.
     bionicToggle.setAttribute("aria-pressed", String(bionicReading));
 
-    if (bionicReading) {
+    //Refresh the extracted text.
+    renderTextFeatures();
+});
 
-        // Apply Bionic Reading.
-        applyBionicReading();
+//Turn Sentence Focus on and off.
+sentenceFocusToggle.addEventListener("click", function () {
+
+    //Switch between enabled and disabled.
+    sentenceFocusEnabled = !sentenceFocusEnabled;
+
+    // Update the button's pressed state.
+    sentenceFocusToggle.setAttribute(
+        "aria-pressed",
+        String(sentenceFocusEnabled)
+    );
+
+    if (sentenceFocusEnabled) {
+
+        // Turn off Line Focus if it is currently enabled.
+        if (lineFocusEnabled) {
+            lineFocusEnabled = false;
+
+            lineFocusToggle.setAttribute("aria-pressed", "false");
+            displayText.classList.remove("line-focus-active");
+        }
+
+        // Add the Sentence Focus class.
+        displayText.classList.add("sentence-focus-active");
 
     } else {
 
-        // Restore the original extracted text.
-        const textElements = displayText.querySelectorAll("p, h3, figcaption");
-
-        textElements.forEach(function (element) {
-
-            if (element.dataset.originalText !== undefined) {
-                element.textContent = element.dataset.originalText;
-            }
-
-        });
+        //Remove the Sentence Focus class.
+        displayText.classList.remove("sentence-focus-active");
     }
+
+    // Rebuild the text with the current formatting.
+    renderTextFeatures();
+});
+
+
+// Detect when the user clicks on a sentence.
+displayText.addEventListener("click", function (event) {
+
+    // Do nothing if Sentence Focus is disabled.
+    if (!sentenceFocusEnabled) {
+        return;
+    }
+
+    // Find the sentence that was clicked.
+    const selectedSentence = event.target.closest(".focus-sentence");
+
+    // Make sure the selected sentence belongs to the document.
+    if (!selectedSentence || !displayText.contains(selectedSentence)) {
+        return;
+    }
+
+    // Find the previously selected sentences.
+    const previousSentences = displayText.querySelectorAll(".sentence-focused");
+
+    // Remove the previous highlights.
+    previousSentences.forEach(function (sentence) {
+        sentence.classList.remove("sentence-focused");
+    });
+
+    // Highlight the newly selected sentence.
+    selectedSentence.classList.add("sentence-focused");
 });
 
 // Turn Line Focus on and off.
@@ -842,4 +944,132 @@ document.addEventListener("DOMContentLoaded", function() { /*Function for changi
         //https://www.w3schools.com/jsref/prop_element_classlist.asp
         //Source of understanding class lists and tinkering with them
     });
+});
+
+// Create the top and bottom Reading Mask overlays.
+const topMask = document.createElement("div");
+const bottomMask = document.createElement("div");
+
+// Give both elements the Reading Mask CSS class.
+topMask.className = "reading-mask-overlay";
+bottomMask.className = "reading-mask-overlay";
+
+// Add the overlays to the webpage.
+document.body.appendChild(topMask);
+document.body.appendChild(bottomMask);
+
+// Position the Reading Mask around the line being hovered over.
+function updateReadingMask(event) {
+
+    // Do nothing if Reading Mask is disabled.
+    if (!readingMaskEnabled) {
+        return;
+    }
+
+    // Find the paragraph, heading, or caption being hovered over.
+    const hoveredElement = event.target.closest("p, h3, figcaption");
+
+    // Make sure the element belongs to the extracted document.
+    if (!hoveredElement || !displayText.contains(hoveredElement)) {
+        hideReadingMask();
+        return;
+    }
+
+    // Create a range containing the text inside the element.
+    const textRange = document.createRange();
+    textRange.selectNodeContents(hoveredElement);
+
+    // Get the positions of the individual rendered text lines.
+    const textLines = Array.from(textRange.getClientRects());
+
+    // Find the visual line underneath the mouse.
+    const selectedLine = textLines.find(function (line) {
+
+        return (
+            event.clientY >= line.top &&
+            event.clientY <= line.bottom
+        );
+    });
+
+    // Hide the mask if no line was found.
+    if (!selectedLine) {
+        hideReadingMask();
+        return;
+    }
+
+    // Get the boundaries of the extracted document.
+    const documentBounds = displayText.getBoundingClientRect();
+
+    // Make sure the selected line is inside the document.
+    const lineTop = Math.max(selectedLine.top, documentBounds.top);
+    const lineBottom = Math.min(selectedLine.bottom, documentBounds.bottom);
+
+    if (lineTop >= lineBottom) {
+        hideReadingMask();
+        return;
+    }
+
+    // Position the top overlay above the selected line.
+    topMask.style.left = documentBounds.left + "px";
+    topMask.style.width = documentBounds.width + "px";
+    topMask.style.top = documentBounds.top + "px";
+    topMask.style.height = (lineTop - documentBounds.top) + "px";
+
+    // Position the bottom overlay below the selected line.
+    bottomMask.style.left = documentBounds.left + "px";
+    bottomMask.style.width = documentBounds.width + "px";
+    bottomMask.style.top = lineBottom + "px";
+    bottomMask.style.height = (documentBounds.bottom - lineBottom) + "px";
+
+    // Display both overlays.
+    topMask.style.display = "block";
+    bottomMask.style.display = "block";
+}
+
+
+// Hide both Reading Mask overlays.
+function hideReadingMask() {
+
+    topMask.style.display = null;
+    bottomMask.style.display = null;
+}
+
+// Turn Reading Mask on and off.
+readingMaskToggle.addEventListener("click", function () {
+
+    // Switch between enabled and disabled.
+    readingMaskEnabled = !readingMaskEnabled;
+
+    // Update the button's pressed state.
+    readingMaskToggle.setAttribute(
+        "aria-pressed",
+        String(readingMaskEnabled)
+    );
+
+    if (!readingMaskEnabled) {
+
+        // Hide the overlays when Reading Mask is disabled.
+        hideReadingMask();
+    }
+});
+
+
+// Detect when the mouse moves over extracted text.
+displayText.addEventListener("mousemove", function (event) {
+
+    updateReadingMask(event);
+});
+
+
+// Hide the mask when the mouse leaves the document.
+displayText.addEventListener("mouseleave", function () {
+
+    hideReadingMask();
+});
+
+
+// Hide the mask when the document scrolls.
+window.addEventListener("scroll", function () {
+
+    hideReadingMask();
 });
